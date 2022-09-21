@@ -1,0 +1,118 @@
+
+@import url("https://use.typekit.net/lij2gln.css");
+
+
+#nexus-nav .text-primary {
+    color: #1A2D50 !important;
+
+}
+
+#nexus-nav .btn-primary {
+    background-color: #1A2D50;
+    border-color: #1A2D50;
+}
+/*85A2B9*/
+
+
+#nexus-index {
+    --white: #fff;
+    --gray: #6c757d;
+    --gray-dark: #343a40;
+    --primary: #1A2D50;
+    --primary-light: #3D69BA;
+    --primary-dark: #070C14;
+    --secondary: #d23e3e;
+    --seconary-light: #FF4B4B;
+    --secondary-dark: #651D1D;
+    --success: #28A138;
+    --info: #0F8B8D;
+    --warning: #FCB336;
+    --warning-dark: #EC9A29;
+    --danger: #A31212;
+    --light: #f0f0f9;
+    --dark: #212529;
+    --breakpoint-xs: 0;
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+    --font-family-sans-serif: noto-sans-display, sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    --font-family-monospace: roboto-mono, monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+}
+
+#nexus-index body {
+    font-family: roboto-mono, monospace;
+    font-weight: 300;
+    font-style: normal;
+    line-height: 1.4;
+}
+
+#nexus-index .list-group-item-light.list-group-item-action:hover {
+    background-color: #f0f0f2;
+}
+
+#nexus-index .btn-secondary, #nexus-index .badge-secondary {
+    background-color: #d23e3e;
+    border-color: #d23e3e;
+}
+
+#nexus-index .btn-primary {
+    background-color: #1A2D50;
+    border-color: #1A2D50;
+}
+
+#nexus-index i.text-primary, #nexus-index i.text-info {
+    color: #1A2D50 !important;
+
+}
+
+#nexus-index a {
+    color: #1A2D50 !important;
+
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: noto-sans-display, sans-serif;
+
+    font-weight: 200;
+
+    font-style: normal;
+    color: #09101C;
+    line-height: 1.2;
+}
+
+#nexus-index .badge-secondary {
+    padding: 0.5em 0.8em;
+}
+
+
+#nav {
+    border-bottom: 1px solid #090D0C;
+}
+
+.navbar-expand-md .navbar-nav .nav-link {
+    padding: 1rem 1.3rem;
+    margin: 0 .2rem;
+    border-radius: 0.3rem;
+}
+
+.row.footer {
+    background-color: #1A2D50 !important;
+    border-top: 1px solid #1A2D50;
+    padding: 20px;
+    color: #FFF;
+}
+.small a {
+    color: #1A2D50 !important;
+}
+.icons a {
+    color: #FFF;
+    padding: 0px 5px;
+}
+
+.icons a:hover {
+    opacity: 0.8;
+}

@@ -1,0 +1,61 @@
+html {
+	margin-top: 0px !important;
+}
+html, body {
+  height: 100%;  
+}
+#main {
+  min-height: 100%;
+  height: auto;
+  /* Negative indent footer by its height */
+  margin: 0px 0px -60px 0px;
+  /* Pad bottom by footer height */
+  padding: 0px 0 80px;
+}
+
+.main {
+  padding-bottom: 80px;
+}
+
+.custom-control-lg .custom-control-label::before,
+.custom-control-lg .custom-control-label::after {
+    top: 0.3rem !important;
+    left: -2rem !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+}
+
+.custom-control-lg .custom-control-label {
+    margin-left: 0.5rem !important;
+    font-size: 1.2rem !important;
+}
+
+.input-group-append div.btn {
+	display: flex;
+	align-items: center;
+}
+
+.input-group-append div.btn i+span {
+	padding-left: 5px;
+}
+
+.display-1 {
+  font-size: 2.5rem;
+}
+
+.display-2 {
+    font-size: 2.2rem;    
+}
+
+.display-3 {
+  font-size: 1.9rem;    
+}
+
+.display-4 {
+  font-size: 1.6rem;    
+}
+
+
+.container {
+  margin-bottom: 100px;
+}

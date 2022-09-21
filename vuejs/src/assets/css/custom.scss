@@ -1,0 +1,85 @@
+// Override / set color variables
+
+$enable-responsive-font-sizes: true;
+
+$primary: #1a2d50;
+$info: #23b5d3;
+$success: #43aa8b;
+$warning: #ffd275;
+$danger: #d05454;
+
+$theme-colors: (
+        'primary':	$primary,
+        'info':	$info,
+        'warning':	$warning,        
+        'danger':	$danger,
+        'success':	$success        
+);
+
+/*
+$nxs-primary:       #1A2D50;
+$nxs-primary-light: #32579C;
+$nxs-secondary:     #d23e3e;
+$nxs-success:       #28A138;
+$nxs-info:          #0F8B8D;
+$nxs-warning:       #FCB336;
+$nxs-warning-dark:  #EC9A29;
+$nxs-danger:        #A31212;
+$nxs-attention:     #6DDFD2;
+$nxs-error:         #FCC9C5;
+$nxs-highlight:     #FCB336;
+$nxs-text-light:           #5F738C;
+$nxs-text-normal:          #181B20;
+$nxs-light:         #f8f9fa;
+$nxs-dark:          #212529;
+
+
+$theme-colors: (
+        'nxs-primary':	$nxs-primary,
+        'nxs-primary-light':	$nxs-primary-light,
+        'nxs-secondary':	$nxs-secondary,
+        'nxs-success':	$nxs-success,
+        'nxs-info':	$nxs-info,
+        'nxs-warning':	$nxs-warning,
+        'nxs-warning-dark':	$nxs-warning-dark,
+        'nxs-danger':	$nxs-danger,
+        'nxs-attention':	$nxs-attention,
+        'nxs-error':	$nxs-error,
+        'nxs-highlight':	$nxs-highlight,
+        'nxs-text-light':	$nxs-text-light,
+        'nxs-text-normal':	$nxs-text-normal,
+        'nxs-light':	$nxs-light,
+        'nxs-dark':	$nxs-dark
+);
+*/
+
+@import 'node_modules/bootstrap/scss/bootstrap.scss';
+@import 'node_modules/bootstrap-vue/src/index.scss';
+
+@import "~ag-grid-community/src/styles/ag-grid.scss";
+
+.ag-theme-alpine .ag-row {
+        font-size:0.8rem;
+}
+
+
+
+#nexus-index body {
+        @include font-size(1.2rem);
+}
+
+#nexus-index .display-1 {
+        @include font-size(2.5rem);
+}
+
+#nexus-index .display-2 {
+        @include font-size(2.2rem);
+}
+
+#nexus-index .display-3 {
+        @include font-size(1.9rem);
+}
+
+#nexus-index .display-4 {
+        @include font-size(1.6rem);
+}

@@ -1,0 +1,23 @@
+{	
+    "db": {
+        "host":"",
+        "port":"",
+        "passwords" : {
+            "nxs_app":"XXXXXXXXXXXXXXXXXX",
+            "nxs_admin":"XXXXXXXXXXXXXXXXXX"
+        }    
+    },
+    "api": {
+      "data.ny.gov":{
+          "name":"dcnxsdmn_apikey_1",
+          "id":"XXXXXXXXXXXXXXXXXX",
+          "secret":"XXXXXXXXXXXXXXXXXX",
+          "token":"XXXXXXXXXXXXXXXXXX"
+      }
+    },
+    "dataBaseURI": "",
+    "php": {
+        "hash": "XXXXXXXXXXXXXXXXXX",
+        "email_password": "XXXXXXXXXXXXXXXXXX"        
+    }
+}

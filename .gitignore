@@ -1,0 +1,13 @@
+config.json
+dist/
+node_modules/
+vendor/
+package-lock.json
+
+
+# additions for python and bash
+config.sh
+gsutil_auth.json
+conf/mysql/*
+*.pyc
+logs/
