@@ -7,6 +7,8 @@ import ssl
 import pathlib
 import os
 
+## Set config
+
 db_user = "nxs_admin"
 
 with open('../conf/config.json') as json_file:
@@ -15,7 +17,8 @@ with open('../conf/config.json') as json_file:
     db_port = conf["db"]["port"]
     db_pass = conf["db"]["passwords"][db_user]
     mysql_files_location = os.getenv('MYSQL_FILES_LOCATION')
-    
+
+## Loads main CF dataset into DB
 def load_transaction_csv():  
     """
     Sample Usage: 

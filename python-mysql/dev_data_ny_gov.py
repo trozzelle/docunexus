@@ -12,53 +12,53 @@ import pandas as pd
 import processing_helper
 
 source_name = "data.ny.gov"
-target_user = "nxs_admin"
+target_user = "tr"
 target_schema = "import_ny"
 
 ## Array of dataset ids from data.ny.gov
 
 # https://data.ny.gov/browse?Dataset-Information_Agency=Elections%2C+Board+of&category=Government+%26+Finance
-table_to_resource={}
-#Campaign Finance Disclosure Reports Data: Beginning 1999 ... >13M records
+table_to_resource = {}
+# Campaign Finance Disclosure Reports Data: Beginning 1999 ... >13M records
 table_to_resource["cf_disclosure_report"] = 'e9ss-239a'
-#Campaign Finance Filer Data: Beginning 1974 ... <50K records
+# Campaign Finance Filer Data: Beginning 1974 ... <50K records
 table_to_resource["cf_filer"] = '7x2g-h32p'
-#New York State ZIP Codes-County FIPS Cross-Reference ... <60K records
+# New York State ZIP Codes-County FIPS Cross-Reference ... <60K records
 table_to_resource["zip_county_fips_xref"] = 'juva-r6g2'
 
 ## Model definitions for csvs as they come out of data.ny.gov
 
 # list fields in order by position in CSV
 csv_column = {}
-csv_column["cf_disclosure_report"] = [ 
-'filer_id','filer_previous_id','cand_comm_name','election_year','election_type','county_desc',
-'filing_abbrev','filing_desc','r_amend','filing_cat_desc','filing_sched_abbrev','filing_sched_desc',
-'loan_lib_number','trans_number','trans_mapping','sched_date','org_date','cntrbr_type_desc',
-'cntrbn_type_desc','transfer_type_desc','receipt_type_desc','receipt_code_desc','purpose_code_desc',
-'r_subcontractor','flng_ent_name','flng_ent_first_name','flng_ent_middle_name','flng_ent_last_name',
-'flng_ent_add1','flng_ent_city','flng_ent_state','flng_ent_zip','flng_ent_country',
-'payment_type_desc','pay_number','owed_amt','org_amt','loan_other_desc','trans_explntn',
-'r_itemized','r_liability','election_year_r','office_desc','district','dist_off_cand_bal_prop'
+csv_column["cf_disclosure_report"] = [
+    'filer_id', 'filer_previous_id', 'cand_comm_name', 'election_year', 'election_type', 'county_desc',
+    'filing_abbrev', 'filing_desc', 'r_amend', 'filing_cat_desc', 'filing_sched_abbrev', 'filing_sched_desc',
+    'loan_lib_number', 'trans_number', 'trans_mapping', 'sched_date', 'org_date', 'cntrbr_type_desc',
+    'cntrbn_type_desc', 'transfer_type_desc', 'receipt_type_desc', 'receipt_code_desc', 'purpose_code_desc',
+    'r_subcontractor', 'flng_ent_name', 'flng_ent_first_name', 'flng_ent_middle_name', 'flng_ent_last_name',
+    'flng_ent_add1', 'flng_ent_city', 'flng_ent_state', 'flng_ent_zip', 'flng_ent_country',
+    'payment_type_desc', 'pay_number', 'owed_amt', 'org_amt', 'loan_other_desc', 'trans_explntn',
+    'r_itemized', 'r_liability', 'election_year_r', 'office_desc', 'district', 'dist_off_cand_bal_prop'
 ]
-csv_column["cf_filer"] = [ 
-'filer_id','filer_name','compliance_type_desc','filer_type_desc','filer_status',
-'committee_type_desc','office_desc','district','county_desc','municipality_subdivision_desc',
-'treasurer_first_name','treasurer_middle_name','treasurer_last_name',
-'address','city','state','zipcode'
+csv_column["cf_filer"] = [
+    'filer_id', 'filer_name', 'compliance_type_desc', 'filer_type_desc', 'filer_status',
+    'committee_type_desc', 'office_desc', 'district', 'county_desc', 'municipality_subdivision_desc',
+    'treasurer_first_name', 'treasurer_middle_name', 'treasurer_last_name',
+    'address', 'city', 'state', 'zipcode'
 ]
-csv_column["zip_county_fips_xref"] = [ 
-'county_name','state_fips','county_code','county_fips','zip_code','file_date'
+csv_column["zip_county_fips_xref"] = [
+    'county_name', 'state_fips', 'county_code', 'county_fips', 'zip_code', 'file_date'
 ]
-csv_column["voter"] = [ 
-'last_name','first_name','middle_name','name_suffix','residence_num','residence_halfnum',
-'residence_aptnum','residence_pre_street_dir','residence_street_name','residence_post_street_dir',
-'residence_city','residence_zip','residence_zip_4','mailing_address_1','mailing_address_2',
-'mailing_address_3','mailing_address_4','date_of_birth','gender','enrollment','other_party',
-'county_code','election_district','legislative_district','town_city','ward','congressional_district',
-'senate_district','assembly_district','last_voted_date','last_voted_year','last_voted_county',
-'previous_address','last_registered_name','county_voter_reg_num','application_date',
-'application_source','id_required','id_required_met','voter_status','voter_status_reason',
-'inactive_date','purge_date','nys_voter_id','voter_history','telephone','email'
+csv_column["voter"] = [
+    'last_name', 'first_name', 'middle_name', 'name_suffix', 'residence_num', 'residence_halfnum',
+    'residence_aptnum', 'residence_pre_street_dir', 'residence_street_name', 'residence_post_street_dir',
+    'residence_city', 'residence_zip', 'residence_zip_4', 'mailing_address_1', 'mailing_address_2',
+    'mailing_address_3', 'mailing_address_4', 'date_of_birth', 'gender', 'enrollment', 'other_party',
+    'county_code', 'election_district', 'legislative_district', 'town_city', 'ward', 'congressional_district',
+    'senate_district', 'assembly_district', 'last_voted_date', 'last_voted_year', 'last_voted_county',
+    'previous_address', 'last_registered_name', 'county_voter_reg_num', 'application_date',
+    'application_source', 'id_required', 'id_required_met', 'voter_status', 'voter_status_reason',
+    'inactive_date', 'purge_date', 'nys_voter_id', 'voter_history', 'telephone', 'email'
 ]
 
 ## Table definitions for how we'll store them in the DB
@@ -136,8 +136,8 @@ for key, value in csv_column.items():
     csv_column_list_string_sub2[key] = []
     csv_dtype[key] = {}
     for i in value:
-        csv_column_list_string_sub[key].append('%('+i+')s') # named substitution
-        csv_column_list_string_sub2[key].append('%s') # generic substitution
+        csv_column_list_string_sub[key].append('%(' + i + ')s')  # named substitution
+        csv_column_list_string_sub2[key].append('%s')  # generic substitution
         csv_dtype[key][i] = "string"
     csv_column_list_string_sub[key] = ','.join(csv_column_list_string_sub[key])
     csv_column_list_string_sub2[key] = ','.join(csv_column_list_string_sub2[key])
@@ -160,21 +160,22 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 print("DB config loaded.")
 
+
 ## Pulls csvs from data.ny.gov
 def download_target_csv(target_table):
     print(f"Attempting to download {target_table}")
-    resource_csv_url = "https://data.ny.gov/api/views/%s/rows.csv?accessType=DOWNLOAD&sorting=true"\
-                        % (table_to_resource[target_table])
-    file=mysql_files_location+"/webapp/"+target_schema+"/"+target_table+".csv"
+    resource_csv_url = "https://data.ny.gov/api/views/%s/rows.csv?accessType=DOWNLOAD&sorting=true" \
+                       % (table_to_resource[target_table])
+    file = mysql_files_location + "/webapp/" + target_schema + "/" + target_table + ".csv"
     pathlib.Path(os.path.split(file)[0]).mkdir(parents=True, exist_ok=True)
     urllib.request.urlretrieve(resource_csv_url, file)
     print(f"Download succeeded. Downloaded to {file}")
 
+
 ## Creates SQL statements and loads csv into DB
 def load_target_csv(target_table):
-
     print(f"Starting load of {target_table}")
-    infile = mysql_files_location+"/webapp/"+target_schema+"/"+target_table+".csv"
+    infile = mysql_files_location + "/webapp/" + target_schema + "/" + target_table + ".csv"
     pathlib_infile = pathlib.Path(infile)
     csv_downloaded_at = datetime.fromtimestamp(pathlib_infile.stat().st_ctime).strftime("%Y-%m-%d %H:%M:%S")
 
@@ -182,7 +183,7 @@ def load_target_csv(target_table):
     create_columns = csv_create_columns[target_table]
     insert_columns = csv_column_list_string[target_table]
     insert_sub = csv_column_list_string_sub2[target_table]
-    buffer_table = target_schema+"."+target_table+"_csv"
+    buffer_table = target_schema + "." + target_table + "_csv"
 
     create_buffer_sql = """
     create table if not exists %(buffer_table)s (
@@ -208,40 +209,42 @@ def load_target_csv(target_table):
     """ + insert_buffer_sql)
 
     processing_helper.print_with_time(buffer_table + ' load starting')
-    
-    con = mysql.connector.connect(host=target_host,port=target_port,user=target_user,password=target_pass,database=target_schema)     
-    cur = con.cursor(dictionary=True,buffered=True)
-    cur.execute("drop table if exists "+buffer_table)    
+
+    con = mysql.connector.connect(host=target_host, port=target_port, user=target_user, password=target_pass,
+                                  database=target_schema)
+    cur = con.cursor(dictionary=True, buffered=True)
+    cur.execute("drop table if exists " + buffer_table)
     con.commit()
     cur.execute(create_buffer_sql)
-    con.commit()    
+    con.commit()
     chunksize = 100000
-    #sql_engine = create_engine('mysql://'+target_user+':'+target_pass+'@'+target_host+':'+target_port+'/'+target_schema)
-    for df in pd.read_csv(infile, chunksize=chunksize, names=csv_column[target_table], dtype=csv_dtype[key], index_col=None, iterator=True):
+    # sql_engine = create_engine('mysql://'+target_user+':'+target_pass+'@'+target_host+':'+target_port+'/'+target_schema)
+    for df in pd.read_csv(infile, chunksize=chunksize, names=csv_column[target_table], dtype=csv_dtype[key],
+                          index_col=None, iterator=True):
         df = df.where(pd.notnull(df), '')
-        #df.to_sql(buffer_table, sql_engine, if_exists='append', index=False) # creates table even with append :(
+        # df.to_sql(buffer_table, sql_engine, if_exists='append', index=False) # creates table even with append :(
         # manually insert since to_sql with append isn't working
         data = list(map(tuple, df.values.tolist()))
         cur.executemany(insert_buffer_sql, data)
         con.commit()
     processing_helper.print_with_time(buffer_table + ' loaded')
-  
-    con.close() 
+
+    con.close()
+
 
 ## Breaks up buffer table into hash, track, and change tables
 ## Creates two views
 
-def process_target_table(target_table): 
-
+def process_target_table(target_table):
     print(f"Processing buffer table into final tables")
     create_columns = csv_create_columns[target_table]
     insert_columns = csv_column_list_string[target_table]
-    buffer_table = target_schema+"."+target_table+"_csv"
-    hash_table = target_schema+"."+target_table+"_hash"
-    track_table = target_schema+"."+target_table+"_track"
-    change_table = target_schema+"."+target_table+"_change"
-    stat_view = target_schema+"."+target_table+"_stat"
-    current_view = target_schema+"."+target_table+"_current"
+    buffer_table = target_schema + "." + target_table + "_csv"
+    hash_table = target_schema + "." + target_table + "_hash"
+    track_table = target_schema + "." + target_table + "_track"
+    change_table = target_schema + "." + target_table + "_change"
+    stat_view = target_schema + "." + target_table + "_stat"
+    current_view = target_schema + "." + target_table + "_current"
 
     print(f"Building SQL statement")
     create_hash_sql = """
@@ -417,110 +420,78 @@ def process_target_table(target_table):
 
     processing_helper.print_with_time(target_table + ' processing started')
 
-    con = mysql.connector.connect(host=target_host,port=target_port,user=target_user,password=target_pass,
-                                  database=target_schema)     
-    cur = con.cursor(dictionary=True,buffered=True)
+    con = mysql.connector.connect(host=target_host, port=target_port, user=target_user, password=target_pass,
+                                  database=target_schema)
+    cur = con.cursor(dictionary=True, buffered=True)
 
-    cur.execute("drop table if exists "+hash_table) 
-    con.commit()    
+    cur.execute("drop table if exists " + hash_table)
+    con.commit()
     cur.execute(create_hash_sql)
-    con.commit()  
+    con.commit()
     cur.execute(insert_hash_sql)
-    con.commit()    
+    con.commit()
     processing_helper.print_with_time(hash_table + ' loaded')
 
     cur.execute(create_track_sql)
-    con.commit()    
+    con.commit()
     cur.execute(insert_track_sql)
-    con.commit()    
+    con.commit()
     processing_helper.print_with_time(track_table + ' updated with new')
 
     cur.execute(create_change_sql)
-    con.commit()    
+    con.commit()
     cur.execute(insert_change_sql)
-    con.commit()    
+    con.commit()
     processing_helper.print_with_time(change_table + ' updated with new')
     cur.execute(insert_change_sql2)
-    con.commit()    
+    con.commit()
     processing_helper.print_with_time(change_table + ' updated with old')
-    
+
     cur.execute(delete_track_sql)
-    con.commit()    
+    con.commit()
     processing_helper.print_with_time(track_table + ' missing deleted')
 
     cur.execute(update_change_sql)
-    con.commit()    
+    con.commit()
     processing_helper.print_with_time(change_table + ' C rows updated')
 
     cur.execute(stat_view_sql)
-    con.commit()    
+    con.commit()
     cur.execute(current_view_sql)
-    con.commit()    
+    con.commit()
 
-    con.close() 
+    con.close()
 
     processing_helper.print_with_time(target_table + ' processing completed')
 
 
+##### API FUNCTIONS - Maybe in the future #####
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##### API FUNCTIONS - Maybe in the future #####    
-
-def get_datasets():    
+def get_datasets():
     client = Socrata(
-            source_name,
-            api_token,
-            username=api_user,
-            password=api_pass,
-            timeout=10
-        )
+        source_name,
+        api_token,
+        username=api_user,
+        password=api_pass,
+        timeout=10
+    )
     res = client.datasets()
     client.close()
 
-def reset_target_table(target_table):   
+
+def reset_target_table(target_table):
     con = mysql.connector.connect(
         host=target_host,
         port=target_port,
         user=target_user,
         password=target_pass,
         database=target_schema
-        )     
-    cur = con.cursor(dictionary=True,buffered=True)
+    )
+    cur = con.cursor(dictionary=True, buffered=True)
 
-    cur.execute("truncate table "+target_schema+"."+target_table+"_json")
+    cur.execute("truncate table " + target_schema + "." + target_table + "_json")
 
-    cur.execute("truncate table "+target_schema+"."+target_table)
+    cur.execute("truncate table " + target_schema + "." + target_table)
 
     sql = """
         delete from shrd.api_get_position
@@ -528,29 +499,30 @@ def reset_target_table(target_table):
           and target_schema = %(target_schema)s
           and target_table = %(target_table)s
         """
-    cur.execute(sql, {'source_name': source_name, 
-                        'target_schema': target_schema, 
-                        'target_table': target_table})    
+    cur.execute(sql, {'source_name': source_name,
+                      'target_schema': target_schema,
+                      'target_table': target_table})
 
-    con.commit() 
-    con.close() 
+    con.commit()
+    con.close()
     processing_helper.print_with_time(target_table + ' reset')
 
-def refresh_target_table(target_table,refresh_type='complete',limit=50000,run_seconds=30): 
+
+def refresh_target_table(target_table, refresh_type='complete', limit=50000, run_seconds=30):
     start_time = datetime.now()
-    stop_time = start_time + timedelta(seconds = run_seconds)
-    processing_helper.print_with_time("start_time:",str(start_time))
-    processing_helper.print_with_time("run_seconds:",str(run_seconds))
-    processing_helper.print_with_time("stop_time:",str(stop_time))
-     
+    stop_time = start_time + timedelta(seconds=run_seconds)
+    processing_helper.print_with_time("start_time:", str(start_time))
+    processing_helper.print_with_time("run_seconds:", str(run_seconds))
+    processing_helper.print_with_time("stop_time:", str(stop_time))
+
     con = mysql.connector.connect(
         host=target_host,
         port=target_port,
         user=target_user,
         password=target_pass,
         database=target_schema
-        )     
-    cur = con.cursor(dictionary=True,buffered=True)
+    )
+    cur = con.cursor(dictionary=True, buffered=True)
 
     # Check for last socrata_id extracted
     sql = """
@@ -562,25 +534,25 @@ def refresh_target_table(target_table,refresh_type='complete',limit=50000,run_se
           and refresh_type = %(refresh_type)s
         LIMIT 0, 1
         """
-    cur.execute(sql, {'source_name': source_name, 
-                        'target_schema': target_schema, 
-                        'target_table': target_table, 
-                        'refresh_type': refresh_type})    
+    cur.execute(sql, {'source_name': source_name,
+                      'target_schema': target_schema,
+                      'target_table': target_table,
+                      'refresh_type': refresh_type})
     socrata = cur.fetchone()
-     
+
     client = Socrata(
-            source_name,
-            api_token,
-            username=api_user,
-            password=api_pass,
-            timeout=10
-        )
+        source_name,
+        api_token,
+        username=api_user,
+        password=api_pass,
+        timeout=10
+    )
     if socrata["cnt"] == 0:
-        # no rows after a reset, so first extract will not have a where clause 
-        socrata_id = get_target_table_page(client,con,target_table,refresh_type,limit)
+        # no rows after a reset, so first extract will not have a where clause
+        socrata_id = get_target_table_page(client, con, target_table, refresh_type, limit)
     else:
-        processing_helper.print_with_time("start with socrata_id:"+str(socrata["socrata_id"])) 
-        socrata_id = get_target_table_page(client,con,target_table,refresh_type,limit,socrata["socrata_id"])
+        processing_helper.print_with_time("start with socrata_id:" + str(socrata["socrata_id"]))
+        socrata_id = get_target_table_page(client, con, target_table, refresh_type, limit, socrata["socrata_id"])
 
     while socrata_id is not None:
         seconds_left = math.floor((stop_time - datetime.now()).total_seconds())
@@ -588,55 +560,58 @@ def refresh_target_table(target_table,refresh_type='complete',limit=50000,run_se
             processing_helper.print_with_time("RAN OUT OF TIME")
             socrata_id = None
             break
-        
-        sql = "call %(proc)s(now() + INTERVAL %(run_seconds)s second)"\
-            % {'proc':target_schema+".process_"+target_table+"_json",'run_seconds':seconds_left}
+
+        sql = "call %(proc)s(now() + INTERVAL %(run_seconds)s second)" \
+              % {'proc': target_schema + ".process_" + target_table + "_json", 'run_seconds': seconds_left}
         cur.execute(sql)
 
-        socrata_id = get_target_table_page(client,con,target_table,refresh_type,limit,socrata_id)
-        con.commit()   
+        socrata_id = get_target_table_page(client, con, target_table, refresh_type, limit, socrata_id)
+        con.commit()
 
-    con.close() 
- 
-def get_target_table_page(client,con,target_table,refresh_type,limit,socrata_id=None):  
+    con.close()
+
+
+def get_target_table_page(client, con, target_table, refresh_type, limit, socrata_id=None):
     if socrata_id == None or socrata_id == '':
-        json_result = client.get(table_to_resource[target_table], limit=limit, offset = 0, select=':id', order='":id" ASC')
+        json_result = client.get(table_to_resource[target_table], limit=limit, offset=0, select=':id',
+                                 order='":id" ASC')
     else:
-        where_clause = ":id > '" +socrata_id + "'"
-        processing_helper.print_with_time("where_clause: "+str(where_clause))
-        json_result = client.get(table_to_resource[target_table], limit=limit, offset = 0, select=':id', order='":id" ASC', where=where_clause)
+        where_clause = ":id > '" + socrata_id + "'"
+        processing_helper.print_with_time("where_clause: " + str(where_clause))
+        json_result = client.get(table_to_resource[target_table], limit=limit, offset=0, select=':id',
+                                 order='":id" ASC', where=where_clause)
     result_count = len(json_result)
     processing_helper.print_with_time(json_result)
 
     if result_count == 0:
-        processing_helper.print_with_time("No results in get")  
+        processing_helper.print_with_time("No results in get")
         processing_helper.print_with_time("STATUS:")
         processing_helper.print_with_time("COMPLETE!")
         return None
-    
-    cur = con.cursor(dictionary=True,buffered=True)
-        
-    sql = "insert into "+target_schema+"."+target_table+"_json (json_result) values (%(json_result)s)"
+
+    cur = con.cursor(dictionary=True, buffered=True)
+
+    sql = "insert into " + target_schema + "." + target_table + "_json (json_result) values (%(json_result)s)"
     cur.execute(sql, {'json_result': json.dumps(json_result)})
 
     socrata_ids = [x[':id'] for x in json_result]
     min_socrata_id = min(socrata_ids)
     max_socrata_id = max(socrata_ids)
-    processing_helper.print_with_time("min_socrata_id: "+min_socrata_id+" max_socrata_id: "+max_socrata_id)
+    processing_helper.print_with_time("min_socrata_id: " + min_socrata_id + " max_socrata_id: " + max_socrata_id)
 
-    json_position = {"socrata_id":max_socrata_id,"result_count":result_count}                                          
+    json_position = {"socrata_id": max_socrata_id, "result_count": result_count}
     sql = """
     insert into shrd.api_get_position 
     (  source_name,    target_schema,    target_table,    refresh_type,   connection_id,   json_position ) 
     values 
     (%(source_name)s,%(target_schema)s,%(target_table)s,%(refresh_type)s,connection_id(),%(json_position)s)
     """
-    cur.execute(sql, {'source_name':source_name,'target_schema': target_schema,'target_table':target_table,
-                      'refresh_type':refresh_type,'json_position':json.dumps(json_position)})
+    cur.execute(sql, {'source_name': source_name, 'target_schema': target_schema, 'target_table': target_table,
+                      'refresh_type': refresh_type, 'json_position': json.dumps(json_position)})
 
-    con.commit()  
-    
-    processing_helper.print_with_time("extracted thru socrata_id:"+str(max_socrata_id)) 
+    con.commit()
+
+    processing_helper.print_with_time("extracted thru socrata_id:" + str(max_socrata_id))
 
     return max_socrata_id
 

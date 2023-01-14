@@ -1,8 +1,12 @@
-create database ny_2020_08
-;
-DROP TABLE if exists ny_2020_08.voter_file;
+-- Adhoc script to load voter file into DB.
+-- Load Local is pretty much a raw dump but
+-- also the fastest.
 
-CREATE TABLE ny_2020_08.voter_file (
+create database ny_2020_08;
+
+drop table if exists ny_2020_08.voter_file;
+
+create TABLE ny_2020_08.voter_file (
   last_name varchar(50),
   first_name varchar(50),
   middle_name varchar(50),
