@@ -297,8 +297,8 @@ def process_target_table(target_table):
         current_ind smallint not null default 1,
     primary key (row_hash,change_type,changed_at,current_ind))
     partition by hash(current_ind);
-    create table %(change_table)s_0 partition of %(change_table)s for values (modulus 2, remainder 0);
-    create table %(change_table)s_1 partition of %(change_table)s for values (modulus 2, remainder 1);
+    create table %(change_table)s_0 partition of %(change_table)s for values with (modulus 2, remainder 0);
+    create table %(change_table)s_1 partition of %(change_table)s for values with (modulus 2, remainder 1);
     drop index if exists %(target_table)s_change_related_changed_at_idx;
     create index %(target_table)s_change_related_changed_at_idx on %(change_table)s(related_changed_at)
     """ % {"change_table": change_table,
@@ -368,7 +368,7 @@ def process_target_table(target_table):
            0,
            c.changed_at
     from %(track_table)s t 
-    join %(change_table)s c on c.row_hash = t.row_hash and c.changed_at = t.csv_downloaded_at and c.change_type = 'C' # and c.current_ind = 1
+    join %(change_table)s c on c.row_hash = t.row_hash and c.changed_at = t.csv_downloaded_at and c.change_type = 'C' and c.current_ind = 1
     left join %(hash_table)s h on h.row_hash = t.row_hash
     where h.row_hash is null  
     on conflict do nothing
@@ -450,7 +450,7 @@ def process_target_table(target_table):
     union all
     SELECT 'change D',count(*) FROM %(change_table)s where change_type = 'D'
     union all
-    SELECT (current_ind || ' ' || change_type || ' changed_at '|| changed_at || ' deleted ' || COALESCE(related_changed_at,'none')),count(*) 
+    SELECT (current_ind || ' ' || change_type || ' changed_at '|| changed_at || ' deleted ' || COALESCE(related_changed_at::text,'none')),count(*) 
     FROM %(change_table)s 
     group by current_ind, change_type, changed_at, related_changed_at
     """ % {"hash_table": hash_table,
@@ -474,9 +474,9 @@ def process_target_table(target_table):
 
     processing_helper.print_with_time(target_table + ' processing started')
 
-    con = mysql.connector.connect(host=target_host, port=target_port, user=target_user, password=target_pass,
-                                  database=target_schema)
-    cur = con.cursor(dictionary=True, buffered=True)
+    con = psycopg2.connect(host=target_host, port=target_port, user=target_user, password=target_pass, database=target_schema)
+
+    cur = con.cursor()
 
     cur.execute("drop table if exists " + hash_table)
     con.commit()
