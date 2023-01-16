@@ -8,8 +8,12 @@ import ssl
 import pathlib
 import os
 import pandas as pd
+import psycopg2
 # from sqlalchemy import create_engine
 import processing_helper
+
+working_dir = os.getcwd()
+    # os.path.dirname(__file__)
 
 source_name = "data.ny.gov"
 target_user = "tr"
@@ -166,7 +170,7 @@ def download_target_csv(target_table):
     print(f"Attempting to download {target_table}")
     resource_csv_url = "https://data.ny.gov/api/views/%s/rows.csv?accessType=DOWNLOAD&sorting=true" \
                        % (table_to_resource[target_table])
-    file = mysql_files_location + "/webapp/" + target_schema + "/" + target_table + ".csv"
+    file = target_schema + "/" + target_table + ".csv"
     pathlib.Path(os.path.split(file)[0]).mkdir(parents=True, exist_ok=True)
     urllib.request.urlretrieve(resource_csv_url, file)
     print(f"Download succeeded. Downloaded to {file}")
@@ -175,7 +179,9 @@ def download_target_csv(target_table):
 ## Creates SQL statements and loads csv into DB
 def load_target_csv(target_table):
     print(f"Starting load of {target_table}")
-    infile = mysql_files_location + "/webapp/" + target_schema + "/" + target_table + ".csv"
+    # infile = target_schema + "/" + target_table + ".csv"
+
+    infile = os.getcwd() + '\\' + target_schema + '\\'+ target_table + "-TEST_DATA.csv"
     pathlib_infile = pathlib.Path(infile)
     csv_downloaded_at = datetime.fromtimestamp(pathlib_infile.stat().st_ctime).strftime("%Y-%m-%d %H:%M:%S")
 
@@ -185,10 +191,15 @@ def load_target_csv(target_table):
     insert_sub = csv_column_list_string_sub2[target_table]
     buffer_table = target_schema + "." + target_table + "_csv"
 
+#       Changes from original mysql statement
+#        csv_id int not null auto_increment,
+#       csv_downloaded_at datetime not null default '%(csv_downloaded_at)s',
+
+
     create_buffer_sql = """
     create table if not exists %(buffer_table)s (
-        csv_id int not null auto_increment,
-        csv_downloaded_at datetime not null default '%(csv_downloaded_at)s',
+        csv_id serial,
+        csv_downloaded_at timestamp default '%(csv_downloaded_at)s',
         %(create_columns)s,
     primary key (csv_id)
     )
@@ -210,9 +221,13 @@ def load_target_csv(target_table):
 
     processing_helper.print_with_time(buffer_table + ' load starting')
 
-    con = mysql.connector.connect(host=target_host, port=target_port, user=target_user, password=target_pass,
-                                  database=target_schema)
-    cur = con.cursor(dictionary=True, buffered=True)
+    # con = mysql.connector.connect(host=target_host, port=target_port, user=target_user, password=target_pass,
+    #                               database=target_schema)
+
+    con = psycopg2.connect(host=target_host, port=target_port, user=target_user, password=target_pass, database=target_schema)
+
+    # cur = con.cursor(dictionary=True, buffered=True)
+    cur = con.cursor()
     cur.execute("drop table if exists " + buffer_table)
     con.commit()
     cur.execute(create_buffer_sql)
@@ -220,7 +235,7 @@ def load_target_csv(target_table):
     chunksize = 100000
     # sql_engine = create_engine('mysql://'+target_user+':'+target_pass+'@'+target_host+':'+target_port+'/'+target_schema)
     for df in pd.read_csv(infile, chunksize=chunksize, names=csv_column[target_table], dtype=csv_dtype[key],
-                          index_col=None, iterator=True):
+                          index_col=None, iterator=True, skiprows=1):
         df = df.where(pd.notnull(df), '')
         # df.to_sql(buffer_table, sql_engine, if_exists='append', index=False) # creates table even with append :(
         # manually insert since to_sql with append isn't working
@@ -251,22 +266,24 @@ def process_target_table(target_table):
     create table if not exists %(hash_table)s (
         csv_id int not null,
         row_hash varchar(40) not null,
-        csv_downloaded_at datetime not null,
-    primary key (csv_id),
-    key row_hash (row_hash)
-    )
-    """ % {"hash_table": hash_table}
+        csv_downloaded_at timestamp not null,
+    primary key (csv_id)
+    );
+    drop index if exists %(target_table)s_hash_rowhash_idx;
+    create index %(target_table)s_hash_rowhash_idx on %(hash_table)s(row_hash)
+    """ % {"hash_table": hash_table, "target_table": target_table}
     print("""HASH CREATE:
     """ + create_hash_sql)
 
     create_track_sql = """
     create table if not exists %(track_table)s (
         row_hash varchar(40) not null,
-        csv_downloaded_at datetime not null,
-    primary key (row_hash),
-    key csv_downloaded_at (csv_downloaded_at)
-    )
-    """ % {"track_table": track_table}
+        csv_downloaded_at timestamp not null,
+    primary key (row_hash)
+    );
+    drop index if exists %(target_table)s_track_csv_downloaded_at_idx;
+    create index %(target_table)s_track_csv_downloaded_at_idx on %(track_table)s(csv_downloaded_at)
+    """ % {"track_table": track_table, "target_table": target_table}
     print("""TRACK CREATE:
     """ + create_track_sql)
 
@@ -275,14 +292,18 @@ def process_target_table(target_table):
         %(create_columns)s,
         row_hash varchar(40) not null,
         change_type varchar(1) not null,
-        changed_at datetime not null,
-        related_changed_at datetime,
-        current_ind tinyint not null default 1,
-    primary key (row_hash,change_type,changed_at,current_ind),
-    key related_changed_at (related_changed_at))
-    PARTITION BY HASH (current_ind) PARTITIONS 2
+        changed_at timestamp not null,
+        related_changed_at timestamp,
+        current_ind smallint not null default 1,
+    primary key (row_hash,change_type,changed_at,current_ind))
+    partition by hash(current_ind);
+    create table %(change_table)s_0 partition of %(change_table)s for values (modulus 2, remainder 0);
+    create table %(change_table)s_1 partition of %(change_table)s for values (modulus 2, remainder 1);
+    drop index if exists %(target_table)s_change_related_changed_at_idx;
+    create index %(target_table)s_change_related_changed_at_idx on %(change_table)s(related_changed_at)
     """ % {"change_table": change_table,
-           "create_columns": create_columns}
+           "create_columns": create_columns,
+           "target_table": target_table,}
     print("""CHANGE CREATE:
     """ + create_change_sql)
 
@@ -297,9 +318,10 @@ def process_target_table(target_table):
     """ + insert_hash_sql)
 
     insert_track_sql = """
-    INSERT IGNORE INTO %(track_table)s (row_hash,csv_downloaded_at) 
+    INSERT INTO %(track_table)s (row_hash,csv_downloaded_at) 
     select distinct row_hash,csv_downloaded_at
     from %(hash_table)s
+    on conflict do nothing
     """ % {"track_table": track_table,
            "hash_table": hash_table}
     print("""TRACK INSERT:
@@ -307,7 +329,7 @@ def process_target_table(target_table):
 
     # Add created rows to change table from track table
     insert_change_sql = """
-    insert ignore into %(change_table)s 
+    insert into %(change_table)s 
        (%(insert_columns)s,
         row_hash,
         change_type,
@@ -321,6 +343,7 @@ def process_target_table(target_table):
     join %(track_table)s t on t.csv_downloaded_at = ll.csv_downloaded_at
     join %(hash_table)s h on h.row_hash = t.row_hash
     join %(buffer_table)s b on b.csv_id = h.csv_id
+    on conflict do nothing
     """ % {"buffer_table": buffer_table,
            "track_table": track_table,
            "hash_table": hash_table,
@@ -331,7 +354,7 @@ def process_target_table(target_table):
 
     # Add deleted rows to change table from track table
     insert_change_sql2 = """
-    insert ignore into %(change_table)s 
+    insert into %(change_table)s 
        (%(insert_columns)s,
         row_hash,
         change_type,
@@ -348,6 +371,7 @@ def process_target_table(target_table):
     join %(change_table)s c on c.row_hash = t.row_hash and c.changed_at = t.csv_downloaded_at and c.change_type = 'C' # and c.current_ind = 1
     left join %(hash_table)s h on h.row_hash = t.row_hash
     where h.row_hash is null  
+    on conflict do nothing
     """ % {"track_table": track_table,
            "change_table": change_table,
            "hash_table": hash_table,
@@ -357,28 +381,58 @@ def process_target_table(target_table):
 
     # Remove deleted rows from track table
     delete_track_sql = """
-    delete t
+    delete
     from %(track_table)s t
-    left join %(hash_table)s h on h.row_hash = t.row_hash
+    using  %(hash_table)s h
     where t.row_hash <> ' '
-    and h.row_hash is null  
+    and h.row_hash is null 
+    and t.row_hash = h.row_hash 
     """ % {"hash_table": hash_table,
            "track_table": track_table}
     print("""TRACK DELETE:
     """ + delete_track_sql)
 
+    ## Preserved for reference until new code checks out
+    # # Remove deleted rows from track table
+    # delete_track_sql = """
+    # delete t
+    # from %(track_table)s t
+    # left join %(hash_table)s h on h.row_hash = t.row_hash
+    # where t.row_hash <> ' '
+    # and h.row_hash is null
+    # """ % {"hash_table": hash_table,
+    #        "track_table": track_table}
+    # print("""TRACK DELETE:
+    # """ + delete_track_sql)
+
     # Update C rows
     update_change_sql = """
     update %(change_table)s c
-    join %(change_table)s d on d.change_type = 'D' 
-									and d.changed_at = (select csv_downloaded_at from %(hash_table)s limit 1) 
-                                    and d.row_hash = c.row_hash 
-    set c.related_changed_at = d.changed_at, c.current_ind = 0
-    where c.change_type = 'C' and c.related_changed_at is null
+    set related_changed_at = d.changed_at, current_ind = 0
+    from %(change_table)s d
+    where c.change_type = 'C' 
+    and c.related_changed_at is null
+    and d.change_type = 'D'
+    and d.changed_at = (select csv_downloaded_at from %(hash_table)s limit 1)
+    and d.row_hash = c.row_hash
     """ % {"hash_table": hash_table,
            "change_table": change_table}
     print("""CHANGE UPDATE:
     """ + update_change_sql)
+
+    ## Preserved for reference until new code checks out
+    # # Update C rows
+    # update_change_sql = """
+    #     update %(change_table)s c
+    #     join %(change_table)s d on d.change_type = 'D'
+    # 									and d.changed_at = (select csv_downloaded_at from %(hash_table)s limit 1)
+    #                                     and d.row_hash = c.row_hash
+    #     set c.related_changed_at = d.changed_at, c.current_ind = 0
+    #     where c.change_type = 'C' and c.related_changed_at is null
+    #     """ % {"hash_table": hash_table,
+    #            "change_table": change_table}
+    # print("""CHANGE UPDATE:
+    #     """ + update_change_sql)
 
     stat_view_sql = """
     create or replace view %(stat_view)s as 
@@ -396,7 +450,7 @@ def process_target_table(target_table):
     union all
     SELECT 'change D',count(*) FROM %(change_table)s where change_type = 'D'
     union all
-    SELECT concat(current_ind, ' ', change_type, ' changed_at ',changed_at,' deleted ',ifnull(related_changed_at,'none')),count(*) 
+    SELECT (current_ind || ' ' || change_type || ' changed_at '|| changed_at || ' deleted ' || COALESCE(related_changed_at,'none')),count(*) 
     FROM %(change_table)s 
     group by current_ind, change_type, changed_at, related_changed_at
     """ % {"hash_table": hash_table,
@@ -615,3 +669,23 @@ def get_target_table_page(client, con, target_table, refresh_type, limit, socrat
 
     return max_socrata_id
 
+if __name__ == "__main__":
+
+    # download_target_csv("cf_disclosure_report")
+    # load_target_csv("cf_disclosure_report")
+    process_target_table("cf_disclosure_report")
+
+
+    # statement = """
+    # create table import_ny.example
+    # (id serial);
+    # create table import_ny.example_2
+    # (id serial);
+    # drop table import_ny.example;"""
+    #
+    # con = psycopg2.connect(host=target_host, port=target_port, user=target_user, password=target_pass, database=target_schema)
+    #
+    # cur = con.cursor()
+    #
+    # cur.execute(statement)
+    # con.commit()
