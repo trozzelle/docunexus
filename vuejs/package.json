@@ -35,7 +35,7 @@
     "v-calendar": "^1.0.8",
     "vue": "^2.6.11",
     "vue-axios": "^3.2.4",
-    "vue-cookies": "1.7.4",
+    "vue-cookies": "1.8.3",
     "vue-dayjs": "^1.0.2",
     "vue-final-modal": "^2.4.1",
     "vue-loader": "^15.9.7",
